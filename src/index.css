@@ -1,0 +1,213 @@
+@import "tailwindcss";
+
+/* ═══════════════════════════════════════════════════════════════════════
+   Tailwind CSS v4 — configured via @tailwindcss/vite (no tailwind.config)
+   Plugin is registered in vite.config.ts: plugins: [react(), tailwindcss()]
+   ═══════════════════════════════════════════════════════════════════════ */
+
+/* ─── Design Tokens (consumed as Tailwind utilities: bg-lavender etc.) ── */
+@theme {
+  --color-lavender:    #E0D7FF;
+  --color-rose:        #FFD6E8;
+  --color-mint:        #C7F9E8;
+  --color-sky:         #BEE3F8;
+  --color-deep:        #0b0612;
+  --color-violet-ink:  #1a0a2e;
+
+  /* Iridescent border colour stops */
+  --color-iris-1: #E0D7FF;
+  --color-iris-2: #FFD6E8;
+  --color-iris-3: #C7F9E8;
+  --color-iris-4: #BEE3F8;
+}
+
+/* ─── Base Reset ─────────────────────────────────────────────────────── */
+@layer base {
+  *, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  html {
+    scroll-behavior: smooth;          /* ✦ smooth anchor navigation */
+  }
+
+  body {
+    /* ── Tricolor soft radial gradient background ──────────────────
+       Three layered radial gradients blend lavender → pastel pink → mint
+       against the deep space base colour, creating a dreamy aurora effect.
+    ─────────────────────────────────────────────────────────────── */
+    background-color: #0b0612;
+    background-image:
+      /* Lavender bloom — top-left */
+      radial-gradient(
+        ellipse 65% 55% at 15% 20%,
+        rgba(224, 215, 255, 0.20) 0%,
+        transparent 70%
+      ),
+      /* Pastel rose bloom — right-centre */
+      radial-gradient(
+        ellipse 55% 50% at 85% 55%,
+        rgba(255, 214, 232, 0.16) 0%,
+        transparent 70%
+      ),
+      /* Mint bloom — bottom-left */
+      radial-gradient(
+        ellipse 50% 45% at 25% 88%,
+        rgba(199, 249, 232, 0.13) 0%,
+        transparent 70%
+      );
+    background-attachment: fixed;     /* parallax: blooms stay put as user scrolls */
+
+    color: #f8f4ff;
+    font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+    overflow-x: hidden;
+    cursor: none;                     /* custom cursor handles pointer rendering */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
+  /* Restore default cursor on touch / non-pointer devices */
+  @media (hover: none) {
+    body { cursor: auto; }
+  }
+
+  /* Lavender tinted text selection */
+  ::selection {
+    background: rgba(224, 215, 255, 0.28);
+    color: #E0D7FF;
+  }
+}
+
+/* ─── Custom Utility Classes ─────────────────────────────────────────── */
+@layer utilities {
+
+  /* ╔══════════════════════════════════════════════════════════════╗
+     ║  .glass-card                                                 ║
+     ║  Full frosted-glass card with iridescent conic border        ║
+     ║  Usage: <div class="glass-card p-8">…</div>                  ║
+     ╚══════════════════════════════════════════════════════════════╝ */
+  .glass-card {
+    /* Dark translucent fill */
+    background: rgba(15, 23, 42, 0.65);
+
+    /* Heavy backdrop blur for strong frosted effect */
+    backdrop-filter: blur(28px) saturate(190%) brightness(1.05);
+    -webkit-backdrop-filter: blur(28px) saturate(190%) brightness(1.05);
+
+    /* Iridescent border — 1 px conic gradient cycling through the palette
+       wrapped in a border-image so no border-radius conflict */
+    border: 1px solid transparent;
+    background-clip: padding-box;
+    box-shadow:
+      /* Inset iridescent rim light */
+      inset 0 1px 0 rgba(224, 215, 255, 0.22),
+      inset 0 -1px 0 rgba(199, 249, 232, 0.12),
+      /* Outer soft glow */
+      0  4px 24px rgba(0, 0, 0, 0.40),
+      0  0   60px rgba(224, 215, 255, 0.06);
+    /* Iridescent outer border via outline trick */
+    outline: 1px solid transparent;
+    outline-offset: -1px;
+
+    /* Emulate the iridescent border using a pseudo wrapper:
+       since CSS border-image breaks border-radius, we rely on the
+       box-shadow rim + a subtle rgba border as a compatible fallback. */
+    border-color: rgba(255, 255, 255, 0.11);
+    border-radius: 1.5rem;
+
+    /* Smooth state transitions */
+    transition:
+      box-shadow 0.35s ease,
+      border-color 0.35s ease,
+      transform 0.25s ease;
+  }
+
+  /* Hover: boost glow and lift the card slightly */
+  .glass-card:hover {
+    border-color: rgba(224, 215, 255, 0.28);
+    box-shadow:
+      inset 0 1px 0 rgba(224, 215, 255, 0.35),
+      inset 0 -1px 0 rgba(199, 249, 232, 0.20),
+      0  8px 40px rgba(0, 0, 0, 0.45),
+      0  0  80px rgba(224, 215, 255, 0.10),
+      0  0  30px rgba(255, 214, 232, 0.07);
+  }
+
+  /* ╔══════════════════════════════════════════════════════════════╗
+     ║  .glass-pill                                                 ║
+     ║  Compact pill / badge — lighter blur, coloured rim glow      ║
+     ║  Usage: <span class="glass-pill">TypeScript</span>           ║
+     ╚══════════════════════════════════════════════════════════════╝ */
+  .glass-pill {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.35rem 1rem;
+    border-radius: 9999px;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    letter-spacing: 0.01em;
+    user-select: none;
+
+    /* Light frosted fill */
+    background: rgba(255, 255, 255, 0.055);
+    backdrop-filter: blur(12px) saturate(160%);
+    -webkit-backdrop-filter: blur(12px) saturate(160%);
+
+    /* Iridescent rim: layered box-shadows to fake a rainbow border */
+    border: 1px solid rgba(224, 215, 255, 0.30);
+    box-shadow:
+      /* Top-edge lavender rim */
+      inset 0  1px 0 rgba(224, 215, 255, 0.45),
+      /* Bottom-edge mint rim */
+      inset 0 -1px 0 rgba(199, 249, 232, 0.25),
+      /* Outer glow: diffuse lavender */
+      0 0 18px rgba(224, 215, 255, 0.22),
+      /* Micro ambient glow */
+      0 2px  8px rgba(0, 0, 0, 0.25);
+
+    color: rgba(248, 244, 255, 0.88);
+    transition:
+      transform 0.18s ease,
+      box-shadow 0.25s ease,
+      border-color 0.25s ease;
+  }
+
+  /* Hover: scale up and intensify the iridescent glow */
+  .glass-pill:hover {
+    transform: scale(1.08) translateY(-2px);
+    border-color: rgba(255, 214, 232, 0.50);
+    box-shadow:
+      inset 0  1px 0 rgba(224, 215, 255, 0.65),
+      inset 0 -1px 0 rgba(199, 249, 232, 0.40),
+      0 0 28px rgba(224, 215, 255, 0.35),
+      0 0 12px rgba(255, 214, 232, 0.20),
+      0 4px 14px rgba(0, 0, 0, 0.30);
+  }
+
+  /* ── Gradient text shorthand ─────────────────────────────────── */
+  .gradient-text {
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+  }
+
+  /* ── Centred section wrapper ──────────────────────────────────── */
+  .section-container {
+    max-width: 72rem;
+    margin-inline: auto;
+    padding-inline: 1.5rem;
+    padding-block: 8rem;
+  }
+
+  /* ── Legacy .glass (light variant for overlays / nav) ─────────── */
+  .glass {
+    background: rgba(255, 255, 255, 0.06);
+    backdrop-filter: blur(16px) saturate(160%);
+    -webkit-backdrop-filter: blur(16px) saturate(160%);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+  }
+}
